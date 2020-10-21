@@ -117,9 +117,9 @@ def parse(file_path): #<FINISHED>
     except:
         print("Error : can't read the file")
 
-def translate(dna_seq): #Attention, ne prends pas en charge le start, le stop
+def translate(dna_seq): 
     res = ""
-    #parcourir des triplets
+    #We go triplet by triplet
     i = 0
     while i < len(dna_seq):
         triplet = dna_seq[i:i+3]
@@ -127,13 +127,13 @@ def translate(dna_seq): #Attention, ne prends pas en charge le start, le stop
             try :
                 res += dna_codon[triplet]
             except:
-                pass #en fin de chaîne ou le triplet n'est pas dans le dictionnaire (c'est le cas de start notamment)
+                pass #we go here if we have not a three letter part or the three letters mean nothing
         i+=3
     return res
 
 # This function takes a string encoding a protein and returns the mass as float.
 
-def calc_mass(prot_seq): #<FINISHED>
+def calc_mass(prot_seq): 
     res = 0.0
     for letter in prot_seq:
         res += mass_table[letter]
@@ -148,36 +148,32 @@ def orf(dna_seq):
     stop = ["TAA","TAG","TGA"]
     endroit = dna_seq
     envers = dna_seq[::-1]
-    #PRODUCTION DES PARCOURS
-    #endroit
+    #PRODUCTING THE SIX SEQUENCE (Reverse, Normal)
     candidate.append(endroit)
     candidate.append(endroit[1:])
     candidate.append(endroit[2:])
     candidate.append(envers)
     candidate.append(envers[1:])
     candidate.append(envers[2:])
-    #envers
-    #PRODUCTION DES SEPARATIONS
-    #PRODUCTION DES TRADUCTIONS
+    #PRODUCTING TRANSLATION
     toTranslate = list()
     for sequence in candidate:
-        #recuperer et traiter ce qui est entre start et stop
-        tampon = ""
+        #Take what is between a start and a stop
+        tampon = "" #The chain to be traited
         i = 0
-        while i < len(sequence):#on parcourt de trois en 3
+        while i < len(sequence):
             if sequence[i:i+3] in start:
-                tampon = "" #tomber sur un start, c'est repartir à 0
+                tampon = "" # to encounter a start means reinitialisation
             elif sequence[i:i+3] in stop:
-                toTranslate.append(tampon) #tomber sur stop c'est envoyer
+                toTranslate.append(tampon) #to encounter a stop means sending the actual composed sequence for traduction
             else:
-                if len(sequence[i:i+3]) == 3: #on fait qq chose que si ça vaut 3
-                    tampon += sequence[i:i+3] #dans tous les autres cas, on ajoute les triplets
+                if len(sequence[i:i+3]) == 3: #traduction of the three letters if only they are actually three
+                    tampon += sequence[i:i+3] 
                 else:
-                    tampon = "" #chaine invalide !
+                    tampon = "" #we have a wrong sequence, the sequence is reset !
             i+=3
-    #Bien evidement, il reste à traduire
+    #After slice, time to do translation
     for element in toTranslate:
-        if len(element) > 0:
+        if len(element) > 0: #we consider only the non empty sequences
             res.append(translate(element))
-    #TO DO : virer les éléments non vide
     return res
